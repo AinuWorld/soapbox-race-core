@@ -147,6 +147,7 @@ public class User {
             AuthResultVO result = tokenBO.login(email, verifier, sr);
 
             LoginStatusVO loginStatusVO = new LoginStatusVO(result.getUserId(), result.getToken(), true);
+            loginStatusVO.setDescription("");
             return Response.ok(loginStatusVO).build();
         } catch (AuthException e) {
             return Response.serverError()
@@ -174,6 +175,7 @@ public class User {
             AuthResultVO result = tokenBO.login(email, verifier, sr);
 
             LoginStatusVO loginStatusVO = new LoginStatusVO(result.getUserId(), result.getToken(), true);
+            loginStatusVO.setDescription("");
             return Response.ok(loginStatusVO).build();
         } catch (AuthException e) {
             return Response.serverError()
