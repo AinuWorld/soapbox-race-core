@@ -13,7 +13,7 @@ on:
       - xsd-final/**
   pull_request:
     branches:
-      - develop
+      - master
     paths:
       - src/**
       - xsd/**
