@@ -16,6 +16,8 @@ import javax.ejb.Stateless;
 import java.util.Map;
 import java.util.Set;
 
+import com.soapboxrace.core.bo.util.DiscordWebhook;
+
 @Stateless
 public class RewardBO {
 
@@ -52,6 +54,12 @@ public class RewardBO {
     @EJB
     private AmplifierDAO amplifierDAO;
 
+    @EJB
+    private OnlineUsersBO onlineUsersBO;
+
+    @EJB
+    private DiscordWebhook discord;
+
     public Float getPlayerLevelConst(int playerLevel, float levelCashRewardMultiplier) {
         return levelCashRewardMultiplier * playerLevel;
     }
@@ -78,6 +86,8 @@ public class RewardBO {
         float playerLevelCashConst = getPlayerLevelConst(level,
                 eventRewardEntity.getLevelCashRewardMultiplier()) + baselineLevelCash;
         Float timeConst = getTimeConst(eventEntity.getRewardsTimeLimit(), arbitrationPacket.getEventDurationInMilliseconds());
+        rewardVO.setBaseRep(getBaseReward(baseRep, playerLevelRepConst, timeConst, Math.round( getPlayerCountConst() * getHappyHour() )));
+        rewardVO.setBaseCash(getBaseReward(baseCash, playerLevelCashConst, timeConst, Math.round( getPlayerCountConst() * getHappyHour() )));    
         rewardVO.setBaseRep(getBaseReward(baseRep, playerLevelRepConst, timeConst, parameterBO.getFloatParam("REP_REWARD_MULTIPLIER", 1.0f)));
         rewardVO.setBaseCash(getBaseReward(baseCash, playerLevelCashConst, timeConst, parameterBO.getFloatParam("CASH_REWARD_MULTIPLIER", 1.0f)));
     }
@@ -98,12 +108,14 @@ public class RewardBO {
         }
 
         boolean hasLevelChanged = false;
+        boolean dscIsLeveledUp = false;
 
         if (parameterBO.getBoolParam("ENABLE_REPUTATION") && personaEntity.getLevel() < maxLevel) {
             Long expToNextLevel = levelRepDao.find((long) personaEntity.getLevel()).getExpPoint();
             long expMax = personaEntity.getRepAtCurrentLevel() + exp;
             if (expMax >= expToNextLevel) {
                 boolean isLeveledUp = true;
+                dscIsLeveledUp = true;
                 hasLevelChanged = true;
                 while (isLeveledUp) {
                     personaEntity.setLevel(personaEntity.getLevel() + 1);
@@ -123,6 +135,18 @@ public class RewardBO {
             personaEntity.setRep(personaEntity.getRep() + exp);
         }
         personaDao.update(personaEntity);
+
+        if(dscIsLeveledUp == true) {
+            String constructMsg_ds = "**" + personaEntity.getName() + "** just achieved Level **" + (personaEntity.getLevel() + 1) + "**";
+
+            if(parameterBO.getStrParam("DISCORD_WEBHOOK_LEVEL_URL") != null) {
+                discord.sendMessage(constructMsg_ds, 
+                    parameterBO.getStrParam("DISCORD_WEBHOOK_LEVEL_URL"), 
+                    parameterBO.getStrParam("DISCORD_WEBHOOK_LEVEL_NAME", "Botte"),
+                    0xff0000
+                );
+            }
+        }
 
         if (achievementTransaction != null) {
             AchievementProgressionContext progressionContext = new AchievementProgressionContext(cash, exp,
@@ -188,13 +212,32 @@ public class RewardBO {
         return accolades;
     }
 
+    public Float getPlayerCountConst() {
+        OnlineUsersEntity onlineUsersEntity = onlineUsersBO.getOnlineUsersStats();
+
+		float divider = parameterBO.getFloatParam("PLAYERCOUNT_REWARD_DIVIDER", 0f);
+		if (divider == 0) return 1f;
+		long playerCount = onlineUsersEntity.getNumberOfOnline();
+		return 1f + playerCount / divider;
+    }
+    
+    public Float getHappyHour() {
+        Boolean happyHourEnabled = parameterBO.getBoolParam("happyHourEnabled");
+
+        if(happyHourEnabled) {
+            return parameterBO.getFloatParam("happyHourMultipler");
+        } else {
+            return 1f;
+        }
+    }
+
     public void setMultiplierReward(EventRewardEntity eventRewardEntity, RewardVO rewardVO) {
         float rep = rewardVO.getRep();
         float cash = rewardVO.getCash();
         float finalRepRewardMultiplier = eventRewardEntity.getFinalRepRewardMultiplier();
         float finalCashRewardMultiplier = eventRewardEntity.getFinalCashRewardMultiplier();
-        float finalRep = rep * finalRepRewardMultiplier;
-        float finalCash = cash * finalCashRewardMultiplier;
+        float finalRep = (rep * finalRepRewardMultiplier);
+        float finalCash = (cash * finalCashRewardMultiplier);
         rewardVO.add((int) finalRep, 0, EnumRewardCategory.AMPLIFIER, EnumRewardType.REP_AMPLIFIER);
         rewardVO.add(0, (int) finalCash, EnumRewardCategory.AMPLIFIER, EnumRewardType.TOKEN_AMPLIFIER);
     }

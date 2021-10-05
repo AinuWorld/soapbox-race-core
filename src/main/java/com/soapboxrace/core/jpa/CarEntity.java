@@ -26,7 +26,7 @@ import java.util.Set;
                 query = "SELECT COUNT(obj) FROM CarEntity obj  WHERE obj.persona.personaId = :persona" +
                         " AND obj.expirationDate IS NULL"), //
         @NamedQuery(name = "CarEntity.findNumByPersonaId",
-                query = "SELECT COUNT(obj) FROM CarEntity obj WHERE obj.persona.personaId = :persona"),
+                query = "SELECT COUNT(obj) FROM CarEntity obj WHERE obj.persona.personaId = :persona AND obj.sold_at IS NULL"),
         @NamedQuery(name = "CarEntity.deleteByPersona", //
                 query = "DELETE FROM CarEntity obj WHERE obj.persona = :persona"), //
         @NamedQuery(name = "CarEntity.deleteAllExpired", //
@@ -58,6 +58,7 @@ public class CarEntity {
     private float rideHeightDrop;
     private int skillModSlotCount;
     private int version;
+    private LocalDateTime sold_at;
 
     @OneToMany(mappedBy = "car", targetEntity = PaintEntity.class,
             orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
@@ -263,5 +264,13 @@ public class CarEntity {
 
     public void setVinyls(Set<VinylEntity> vinyls) {
         this.vinyls = vinyls;
+    }
+    
+    public LocalDateTime getSoldAt() {
+        return sold_at;
+    }
+
+    public void setSoldAt(LocalDateTime sold_at) {
+        this.sold_at = sold_at;
     }
 }

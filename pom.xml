@@ -12,10 +12,10 @@
 
     <groupId>world.soapboxrace</groupId>
     <artifactId>core</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0-snapshot</version>
     <packaging>war</packaging>
 
-    <name>Soapbox Race World Core</name>
+    <name>Soapbox Race World Reloaded Core</name>
 
     <properties>
         <maven.compiler.source>9</maven.compiler.source>
@@ -28,6 +28,13 @@
 
         <version.thorntail>2.6.0.Final</version.thorntail>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -254,8 +261,18 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.12</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.MrPowerGamerBR</groupId>
+            <artifactId>TemmieWebhook</artifactId>
+            <version>-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
+            <version>2.7</version>
         </dependency>
     </dependencies>
 </project>

@@ -70,7 +70,7 @@ public class DriverPersonaBO {
     public ProfileData createPersona(Long userId, PersonaEntity personaEntity) {
         UserEntity userEntity = userDao.find(userId);
 
-        if (userEntity.getPersonas().size() >= 3) {
+        if (userEntity.getPersonas().size() >= parameterBO.getIntParam("MAX_PROFILES", 3)) {
             throw new EngineException(EngineExceptionCode.MaximumNumberOfPersonasForUserReached, false);
         }
 
@@ -81,6 +81,7 @@ public class DriverPersonaBO {
 
         personaEntity.setUser(userEntity);
         personaEntity.setCash(parameterBO.getIntParam("STARTING_CASH_AMOUNT"));
+        personaEntity.setBoost(parameterBO.getIntParam("STARTING_BOOST_AMOUNT", 0));
         personaEntity.setLevel(parameterBO.getIntParam("STARTING_LEVEL_NUMBER"));
         personaEntity.setCreated(LocalDateTime.now());
         personaEntity.setFirstLogin(personaEntity.getCreated());
@@ -185,7 +186,14 @@ public class DriverPersonaBO {
     public void deletePersona(Long personaId) {
         PersonaEntity personaEntity = personaDao.find(personaId);
         UserEntity user = personaEntity.getUser();
-        personaDao.delete(personaEntity);
+
+        if(parameterBO.getBoolParam("SBRWR_KEEP_PERSONA") == false) {
+            personaDao.delete(personaEntity);
+        } else {
+            personaEntity.setDeletedAt(LocalDateTime.now());
+            personaDao.update(personaEntity);
+        }
+
         user.setSelectedPersonaIndex(Math.max(0, user.getSelectedPersonaIndex() - 1));
         userDao.update(user);
     }
@@ -218,9 +226,16 @@ public class DriverPersonaBO {
 
     public ArrayOfString reserveName(String name) {
         ArrayOfString arrayOfString = new ArrayOfString();
+
+        //Because i forgot to tag it...
         if (personaDao.findByName(name) != null) {
             arrayOfString.getString().add("NONE");
+        } else if (name.equals("NONE")) {
+            arrayOfString.getString().add("SRSLY");
+        } else if (parameterBO.getStrParam("BLACKLISTED_NICKNAMES", "").contains(name)) {
+            arrayOfString.getString().add("NONE");
         }
+
         return arrayOfString;
     }
 

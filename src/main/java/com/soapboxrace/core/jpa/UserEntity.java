@@ -18,11 +18,10 @@ import java.util.List;
 @Entity
 @Table(name = "USER")
 @NamedQueries({ //
-        @NamedQuery(name = "UserEntity.findByEmail", query = "SELECT obj FROM UserEntity obj WHERE obj.email = " +
-                ":email"), //
-        @NamedQuery(name = "UserEntity.findByIpAddress", query = "SELECT obj FROM UserEntity obj WHERE obj.ipAddress " +
-                "= :ipAddress"), //
-        @NamedQuery(name = "UserEntity.countUsers", query = "SELECT COUNT(obj) FROM UserEntity obj") //
+        @NamedQuery(name = "UserEntity.findByEmail", query = "SELECT obj FROM UserEntity obj WHERE obj.email = :email"), //
+        @NamedQuery(name = "UserEntity.findByIpAddress", query = "SELECT obj FROM UserEntity obj WHERE obj.ipAddress = :ipAddress"), //
+        @NamedQuery(name = "UserEntity.countUsers", query = "SELECT COUNT(obj) FROM UserEntity obj WHERE obj.lastLogin IS NOT NULL"), //
+        @NamedQuery(name = "UserEntity.countUsersByIpAddress", query = "SELECT COUNT(obj) FROM UserEntity obj WHERE obj.ipAddress = :ipAddress") //
 })
 public class UserEntity {
 
@@ -58,6 +57,17 @@ public class UserEntity {
 
     @Column(name = "isLocked")
     private boolean isLocked;
+
+    @Column(name = "isDeveloper")
+    private boolean isDeveloper;
+
+    private int maxCarSlots = 300;
+
+    @Column(name = "DiscordID", length = 255)
+	private String discordid;
+
+	@Column(name = "UserAgent", length = 255)
+    private String ua;
 
     @Column(name = "created")
     private LocalDateTime created;
@@ -119,6 +129,38 @@ public class UserEntity {
     public void setPremium(boolean premium) {
         this.premium = premium;
     }
+
+    public boolean isDeveloper() {
+        return isDeveloper;
+    }
+
+    public void setIsDeveloper(boolean isDeveloper) {
+        this.isDeveloper = isDeveloper;
+    }
+
+    public int getMaxCarSlots() {
+        return maxCarSlots;
+    }
+
+    public void setMaxCarSlots(int maxCarSlots) {
+        this.maxCarSlots = maxCarSlots;
+    }
+    
+	public String getDiscordId() {
+		return discordid;
+	}
+
+	public void setDiscordId(String discordid) {
+		this.discordid = discordid;
+	}
+
+	public String getUA() {
+		return ua;
+	}
+
+	public void setUA(String ua) {
+		this.ua = ua;
+	}
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean ownsPersona(Long id) {

@@ -30,41 +30,31 @@ public class ParameterBO {
 
     @Inject
     private Logger logger;
-
     private final ConcurrentMap<String, String> parameterMap;
-
     public ParameterBO() {
         parameterMap = new ConcurrentHashMap<>();
     }
-
     @PostConstruct
     public void init() {
         loadParameters();
     }
-
     /**
      * Loads parameters from the database
      */
     public void loadParameters() {
         parameterMap.clear();
-
         for (ParameterEntity parameterEntity : parameterDao.findAll()) {
             if (parameterEntity.getValue() != null)
                 parameterMap.put(parameterEntity.getName(), parameterEntity.getValue());
         }
-
         logger.info("Loaded {} parameters from database", parameterMap.size());
     }
-
     private String getParameter(String name) {
         return parameterMap.get(name);
     }
 
     public int getCarLimit(UserEntity userEntity) {
-        if (userEntity.isPremium()) {
-            return getIntParam("MAX_CAR_SLOTS_PREMIUM", 200);
-        }
-        return getIntParam("MAX_CAR_SLOTS_FREE", 200);
+        return userEntity.getMaxCarSlots();
     }
 
     public int getMaxCash(UserEntity userEntity) {
@@ -134,5 +124,14 @@ public class ParameterBO {
     public Float getFloatParam(String parameter, Float defaultValue) {
         String parameterFromDB = getParameter(parameter);
         return parameterFromDB == null || parameterFromDB.isEmpty() ? defaultValue : Float.valueOf(parameterFromDB);
+    }
+
+    public void setParameter(String name, String value) {
+        parameterMap.put(name, value);
+
+        ParameterEntity entity = new ParameterEntity();
+        entity.setName(name);
+        entity.setValue(value);
+        parameterDao.update(entity);
     }
 }
