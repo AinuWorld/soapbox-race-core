@@ -11,6 +11,7 @@ import com.google.common.hash.Hashing;
 import com.soapboxrace.core.auth.AuthUtil;
 import com.soapboxrace.core.bo.Argon2BO;
 import com.soapboxrace.core.jpa.UserEntity;
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class ModernPasswordVerifier implements PasswordVerifier {
     private Argon2BO argon2;
@@ -33,7 +34,8 @@ public class ModernPasswordVerifier implements PasswordVerifier {
         if (dbHash.length() == 40) {
             // DB has legacy hash, verify
             @SuppressWarnings("deprecation")
-            String legacyHash = Hashing.sha1().hashString(password, Charsets.UTF_8).toString();
+            //String legacyHash = Hashing.sha1().hashString(password, Charsets.UTF_8).toString();
+            String legacyHash = DigestUtils.sha1Hex(password);
             if (!AuthUtil.stringsEqual(dbHash, legacyHash)) {
                 return false;
             }
