@@ -23,8 +23,8 @@ public class ModdingBO {
         }
 
         ModInfoVO modInfoVO = new ModInfoVO();
-        modInfoVO.setServerID(parameterBO.getStrParam("MODDING_SERVER_ID"));
-        modInfoVO.setBasePath(parameterBO.getStrParam("MODDING_BASE_PATH"));
+        modInfoVO.setServerID("ainu");
+        modInfoVO.setBasePath("https://i.ainu.pw/mods");
         modInfoVO.setFeatures(parameterBO.getStrListParam("MODDING_FEATURES"));
 
         return modInfoVO;
