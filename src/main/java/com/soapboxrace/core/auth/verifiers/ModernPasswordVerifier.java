@@ -41,7 +41,7 @@ public class ModernPasswordVerifier implements PasswordVerifier {
             }
             needsRehash = true;
         } else {
-            if (!argon2.verify(dbHash, DigestUtils.sha1Hex(password))) {
+            if (!argon2.verify(Hashing.sha1().hashString(password, Charsets.UTF_8).toString(), dbHash)) {
                 return false;
             }
             needsRehash = argon2.needsRehash(dbHash);
