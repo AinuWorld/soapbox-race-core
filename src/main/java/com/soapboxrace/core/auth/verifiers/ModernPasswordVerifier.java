@@ -34,14 +34,13 @@ public class ModernPasswordVerifier implements PasswordVerifier {
         if (dbHash.length() == 40) {
             // DB has legacy hash, verify
             @SuppressWarnings("deprecation")
-            //String legacyHash = Hashing.sha1().hashString(password, Charsets.UTF_8).toString();
-            String legacyHash = DigestUtils.sha1Hex(password);
+            String legacyHash = Hashing.sha1().hashString(password, Charsets.UTF_8).toString();
             if (!AuthUtil.stringsEqual(dbHash, legacyHash)) {
                 return false;
             }
             needsRehash = true;
         } else {
-            if (!argon2.verify(password, dbHash)) {
+            if (!argon2.verify(DigestUtils.sha1Hex(password), dbHash)) {
                 return false;
             }
             needsRehash = argon2.needsRehash(dbHash);
