@@ -15,7 +15,7 @@ import java.time.temporal.ChronoUnit;
 @NamedQueries({ //
         @NamedQuery(name = "PersonaEntity.findByName", query = "SELECT obj FROM PersonaEntity obj WHERE obj.name = " +
                 ":name"), //
-        @NamedQuery(name = "PersonaEntity.countPersonas", query = "SELECT count(obj) FROM PersonaEntity obj"), //
+        @NamedQuery(name = "PersonaEntity.countPersonas", query = "SELECT count(obj) FROM PersonaEntity obj WHERE obj.deleted_at IS NULL"), //
         @NamedQuery(name = "PersonaEntity.addPointsToScore", query = "UPDATE PersonaEntity obj SET obj.score=obj.score+:points WHERE obj.personaId=:personaId")
 })
 public class PersonaEntity {
@@ -49,6 +49,9 @@ public class PersonaEntity {
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
+
+    private int prestige = 0;
+    private LocalDateTime deleted_at;
 
     public double getBoost() {
         return boost;
@@ -190,5 +193,21 @@ public class PersonaEntity {
 
     public void setLastLogin(LocalDateTime lastLogin) {
         this.lastLogin = lastLogin;
+    }
+
+    public int getPrestige() {
+        return prestige;
+    }
+
+    public void setPrestige(int prestige) {
+        this.prestige = prestige;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deleted_at;
+    }
+
+    public void setDeletedAt(LocalDateTime deleted_at) {
+        this.deleted_at = deleted_at;
     }
 }

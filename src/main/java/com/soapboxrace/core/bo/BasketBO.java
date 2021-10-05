@@ -87,6 +87,9 @@ public class BasketBO {
     @EJB
     private AmplifierDAO amplifierDAO;
 
+    @EJB
+    private UserDAO userDao;
+
     public ProductEntity findProduct(String productId) {
         return productDao.findByProductId(productId);
     }
@@ -105,6 +108,33 @@ public class BasketBO {
             carDamageBO.updateDurability(defaultCarEntity, 100);
             carDAO.update(defaultCarEntity);
             this.performPersonaTransaction(personaEntity, repairProduct, price);
+            return CommerceResultStatus.SUCCESS;
+        }
+
+        return CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS;
+    }
+
+    public CommerceResultStatus addGarageSlot(String productId, PersonaEntity personaEntity) {
+        if (!parameterBO.getBoolParam("ENABLE_ECONOMY")) {
+            return CommerceResultStatus.FAIL_INSUFFICIENT_FUNDS;
+        }
+
+        ProductEntity powerupProduct = productDao.findByProductId(productId);
+        if(powerupProduct == null) {
+            return CommerceResultStatus.FAIL_INVALID_BASKET;
+        }
+
+        if (canPurchaseProduct(personaEntity, powerupProduct)) {
+            UserEntity userEntity = personaEntity.getUser();
+            int currentCarSlot = userEntity.getMaxCarSlots();
+
+            if(currentCarSlot >= parameterBO.getIntParam("CAR_SLOTS_MAXAMMOUNT", 2000)) {
+                return CommerceResultStatus.FAIL_MAX_ALLOWED_PURCHASES_FOR_THIS_PRODUCT;
+            }
+
+            userEntity.setMaxCarSlots(userEntity.getMaxCarSlots() + parameterBO.getIntParam("CAR_SLOTS_ADD", 1));
+            userDao.update(userEntity);
+            performPersonaTransaction(personaEntity, powerupProduct);
             return CommerceResultStatus.SUCCESS;
         }
 
@@ -134,7 +164,7 @@ public class BasketBO {
 
     public CommerceResultStatus buyCar(ProductEntity productEntity, PersonaEntity personaEntity, TokenSessionEntity tokenSessionEntity,
                                        CommerceResultTrans commerceResultTrans) {
-        if (getPersonaCarCount(personaEntity.getPersonaId()) >= parameterBO.getCarLimit(tokenSessionEntity.getUserEntity())) {
+        if (getPersonaCarCount(personaEntity.getPersonaId()) >= personaEntity.getUser().getMaxCarSlots()) {
             return CommerceResultStatus.FAIL_INSUFFICIENT_CAR_SLOTS;
         }
 
@@ -265,14 +295,11 @@ public class BasketBO {
         }
 
         carDAO.insert(carEntity);
-        performanceBO.calcNewCarClass(carEntity);
+        CarClassesEntity carClassesEntity = performanceBO.calcNewCarClass(carEntity);
 
         if (isRental && canAddAmplifier(personaEntity.getPersonaId(), "INSURANCE_AMPLIFIER")) {
             addAmplifier(personaEntity, productDao.findByEntitlementTag("INSURANCE_AMPLIFIER"));
         }
-
-        CarClassesEntity carClassesEntity =
-                carClassesDAO.find(carEntity.getName());
 
         AchievementTransaction transaction = achievementBO.createTransaction(personaEntity.getPersonaId());
 
@@ -330,7 +357,12 @@ public class BasketBO {
             return false;
         }
 
-        carDAO.delete(carEntity);
+        if(parameterBO.getBoolParam("SBRWR_KEEP_CARS") == false) {
+            carDAO.delete(carEntity);
+        } else {
+            carEntity.setSoldAt(LocalDateTime.now());
+            carDAO.update(carEntity);
+        }
 
         int curCarIndex = personaEntity.getCurCarIndex();
 
