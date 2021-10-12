@@ -7,6 +7,7 @@ public class ServerInformationVO {
 
     private String homePageUrl;
     private String facebookUrl;
+    private String twitterUrl;
     private String discordUrl;
 
     private String serverName;
@@ -24,7 +25,23 @@ public class ServerInformationVO {
 
     private Long onlineNumber;
     private boolean requireTicket = false;
+    private float playerCountRewardMultiplier;
+
+    private String webSignupUrl;
+    private String webRecoveryUrl;
+    private String webPanelUrl;
+
+    private float cashRewardMultiplier;
+    private float repRewardMultiplier;
+
+    private String discordApplicationID;
+
+    private boolean happyHourEnabled = false;
+    private float happyHourMultipler = 1f;
+
     private String serverVersion;
+
+    private boolean modernAuthSupport;
 
     public String getMessageSrv() {
         return messageSrv;
@@ -48,6 +65,14 @@ public class ServerInformationVO {
 
     public void setFacebookUrl(String facebookUrl) {
         this.facebookUrl = facebookUrl;
+    }
+
+    public String getTwitterUrl() {
+        return twitterUrl;
+    }
+
+    public void setTwitterUrl(String twitterUrl) {
+        this.twitterUrl = twitterUrl;
     }
 
     public String getDiscordUrl() {
@@ -166,7 +191,87 @@ public class ServerInformationVO {
         return serverVersion;
     }
 
+    public String getWebSignupUrl() {
+        return webSignupUrl;
+    }
+
+    public void setWebSignupUrl(String webSignupUrl) {
+        this.webSignupUrl = webSignupUrl;
+    }
+    
+    public String getWebRecoveryUrl() {
+        return webRecoveryUrl;
+    }
+
+    public void setWebRecoveryUrl(String webRecoveryUrl) {
+        this.webRecoveryUrl = webRecoveryUrl;
+    }
+
+    public String getWebPanelUrl() {
+        return webPanelUrl;
+    }
+
+    public void setWebPanelUrl(String webPanelUrl) {
+        this.webPanelUrl = webPanelUrl;
+    }
+
     public void setServerVersion(String serverVersion) {
         this.serverVersion = serverVersion;
+    }
+
+    public float getPlayerCountRewardMultiplier() {
+        return playerCountRewardMultiplier;
+    }
+
+    public void setPlayerCountRewardMultiplier(float playerCountRewardMultiplier) {
+        this.playerCountRewardMultiplier = playerCountRewardMultiplier;
+    }
+
+    public float getCashRewardMultiplier() {
+        return cashRewardMultiplier;
+    }
+
+    public void setCashRewardMultiplier(float cashRewardMultiplier) {
+        this.cashRewardMultiplier = cashRewardMultiplier;
+    }
+
+    public float getRepRewardMultiplier() {
+        return repRewardMultiplier;
+    }
+
+    public void setRepRewardMultiplier(float repRewardMultiplier) {
+        this.repRewardMultiplier = repRewardMultiplier;
+    }
+
+    public String getDiscordApplicationID() {
+        return discordApplicationID;
+    }
+
+    public void setDiscordApplicationID(String discordApplicationID) {
+        this.discordApplicationID = discordApplicationID;
+    }
+    
+    public boolean getHappyHourEnabled() {
+        return happyHourEnabled;
+    }
+
+    public void setHappyHourEnabled(boolean happyHourEnabled) {
+        this.happyHourEnabled = happyHourEnabled;
+    }
+
+    public float getHappyHourMultipler() {
+        return happyHourMultipler;
+    }
+
+    public void setHappyHourMultipler(float happyHourMultipler) {
+        this.happyHourMultipler = happyHourMultipler;
+    }
+
+    public boolean isModernAuthSupport() {
+        return modernAuthSupport;
+    }
+
+    public void setModernAuthSupport(boolean modernAuthSupport) {
+        this.modernAuthSupport = modernAuthSupport;
     }
 }

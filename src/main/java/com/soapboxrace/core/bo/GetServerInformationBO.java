@@ -22,6 +22,9 @@ public class GetServerInformationBO {
     @EJB
     private ParameterBO parameterBO;
 
+    @EJB
+    private RewardBO rewardBO;
+
     public ServerInformationVO getServerInformation() {
         OnlineUsersEntity onlineUsersEntity = onlineUsersBO.getOnlineUsersStats();
 
@@ -29,6 +32,7 @@ public class GetServerInformationBO {
         serverInformationVO.setMessageSrv(parameterBO.getStrParam("SERVER_INFO_MESSAGE"));
         serverInformationVO.setHomePageUrl(parameterBO.getStrParam("SERVER_INFO_HOMEPAGE_URL"));
         serverInformationVO.setFacebookUrl(parameterBO.getStrParam("SERVER_INFO_FACEBOOK_URL"));
+        serverInformationVO.setTwitterUrl(parameterBO.getStrParam("SERVER_INFO_TWITTER_URL"));
         serverInformationVO.setDiscordUrl(parameterBO.getStrParam("SERVER_INFO_DISCORD_URL"));
         serverInformationVO.setServerName(parameterBO.getStrParam("SERVER_INFO_NAME"));
         serverInformationVO.setCountry(parameterBO.getStrParam("SERVER_INFO_COUNTRY"));
@@ -41,9 +45,19 @@ public class GetServerInformationBO {
         serverInformationVO.setActivatedHolidaySceneryGroups(parameterBO.getStrListParam("SERVER_INFO_ENABLED_SCENERY"));
         serverInformationVO.setDisactivatedHolidaySceneryGroups(parameterBO.getStrListParam("SERVER_INFO_DISABLED_SCENERY"));
         serverInformationVO.setRequireTicket(parameterBO.getStrParam("TICKET_TOKEN") != null);
-        serverInformationVO.setServerVersion(BuildInfo.getVersion());
+        serverInformationVO.setPlayerCountRewardMultiplier(rewardBO.getPlayerCountConst());
+        serverInformationVO.setHappyHourEnabled(parameterBO.getBoolParam("happyHourEnabled"));
+        serverInformationVO.setHappyHourMultipler(parameterBO.getFloatParam("happyHourMultipler"));
+        serverInformationVO.setWebSignupUrl(parameterBO.getStrParam("SERVER_INFO_SIGNUPURL"));
+        serverInformationVO.setWebRecoveryUrl(parameterBO.getStrParam("SERVER_INFO_RESETURL"));
+        serverInformationVO.setWebPanelUrl(parameterBO.getStrParam("SERVER_INFO_WEBPANEL"));
+        serverInformationVO.setCashRewardMultiplier(parameterBO.getFloatParam("CASH_REWARD_MULTIPLIER"));
+        serverInformationVO.setRepRewardMultiplier(parameterBO.getFloatParam("REP_REWARD_MULTIPLIER"));
+        serverInformationVO.setDiscordApplicationID(parameterBO.getStrParam("SERVER_INFO_DISCORDAPPLICATIONID"));
+        serverInformationVO.setServerVersion(BuildInfo.getVersion() + " - " + BuildInfo.getCommitID());
         serverInformationVO.setOnlineNumber(onlineUsersEntity.getNumberOfOnline());
         serverInformationVO.setNumberOfRegistered(onlineUsersEntity.getNumberOfRegistered());
+        serverInformationVO.setModernAuthSupport(parameterBO.getBoolParam("MODERN_AUTH_ENABLED"));
 
         return serverInformationVO;
     }
