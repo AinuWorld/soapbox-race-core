@@ -17,7 +17,7 @@ public class ServerInformationVO {
     private String adminList;
     private String ownerList;
     private Long numberOfRegistered;
-    private Integer secondsToShutDown = 7200;
+    private Integer secondsToShutDown = 10800;
     private String allowedCountries;
 
     private List<String> activatedHolidaySceneryGroups;
