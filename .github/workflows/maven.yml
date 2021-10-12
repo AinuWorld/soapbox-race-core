@@ -15,10 +15,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Obtain Latest Git ONLY within container for checkout
-        run: |
-          apt-get update
-          apt-get install -y git
+    - name: Setup OS
+      run: |
+        sudo apt-get update
+        sudo apt-get upgrade
+
+    - name: Setup Git
+      run: |
+        sudo apt-get install git
     - uses: actions/checkout@v2
     - name: Set up JDK 1.11
       uses: actions/setup-java@v1
