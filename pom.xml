@@ -55,9 +55,6 @@
                         <goals>
                             <goal>package</goal>
                         </goals>
-                        <configuration>
-                            <hollow>true</hollow>
-                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
