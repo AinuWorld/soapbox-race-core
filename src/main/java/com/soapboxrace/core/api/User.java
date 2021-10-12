@@ -42,6 +42,8 @@ public class User {
 
         if (sr != null) {
             remoteAddr = sr.getHeader("X-Forwarded-For");
+            String[] remoteAddrSplit = remoteAddr.split("\\s*,\\s*");
+            remoteAddr = remoteAddrSplit[0];
             if (remoteAddr == null || "".equals(remoteAddr)) {
                 remoteAddr = sr.getRemoteAddr();
             }
