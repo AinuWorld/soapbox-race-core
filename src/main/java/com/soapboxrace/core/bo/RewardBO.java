@@ -52,6 +52,9 @@ public class RewardBO {
     @EJB
     private AmplifierDAO amplifierDAO;
 
+    @EJB
+    private OnlineUsersBO onlineUsersBO;
+
     public Float getPlayerLevelConst(int playerLevel, float levelCashRewardMultiplier) {
         return levelCashRewardMultiplier * playerLevel;
     }
@@ -78,6 +81,8 @@ public class RewardBO {
         float playerLevelCashConst = getPlayerLevelConst(level,
                 eventRewardEntity.getLevelCashRewardMultiplier()) + baselineLevelCash;
         Float timeConst = getTimeConst(eventEntity.getRewardsTimeLimit(), arbitrationPacket.getEventDurationInMilliseconds());
+        rewardVO.setBaseRep(getBaseReward(baseRep, playerLevelRepConst, timeConst, Math.round( getPlayerCountConst() * getHappyHour() )));
+        rewardVO.setBaseCash(getBaseReward(baseCash, playerLevelCashConst, timeConst, Math.round( getPlayerCountConst() * getHappyHour() )));  
         rewardVO.setBaseRep(getBaseReward(baseRep, playerLevelRepConst, timeConst, parameterBO.getFloatParam("REP_REWARD_MULTIPLIER", 1.0f)));
         rewardVO.setBaseCash(getBaseReward(baseCash, playerLevelCashConst, timeConst, parameterBO.getFloatParam("CASH_REWARD_MULTIPLIER", 1.0f)));
     }
@@ -188,13 +193,32 @@ public class RewardBO {
         return accolades;
     }
 
+    public Float getPlayerCountConst() {
+        OnlineUsersEntity onlineUsersEntity = onlineUsersBO.getOnlineUsersStats();
+
+        float divider = parameterBO.getFloatParam("PLAYERCOUNT_REWARD_DIVIDER", 0f);
+        if (divider == 0) return 1f;
+        long playerCount = onlineUsersEntity.getNumberOfOnline();
+        return 1f + playerCount / divider;
+    }
+    
+    public Float getHappyHour() {
+        Boolean happyHourEnabled = parameterBO.getBoolParam("happyHourEnabled");
+
+        if(happyHourEnabled) {
+            return parameterBO.getFloatParam("happyHourMultipler");
+        } else {
+            return 1f;
+        }
+    }
+
     public void setMultiplierReward(EventRewardEntity eventRewardEntity, RewardVO rewardVO) {
         float rep = rewardVO.getRep();
         float cash = rewardVO.getCash();
         float finalRepRewardMultiplier = eventRewardEntity.getFinalRepRewardMultiplier();
         float finalCashRewardMultiplier = eventRewardEntity.getFinalCashRewardMultiplier();
-        float finalRep = rep * finalRepRewardMultiplier;
-        float finalCash = cash * finalCashRewardMultiplier;
+        float finalRep = (rep * finalRepRewardMultiplier);
+        float finalCash = (cash * finalCashRewardMultiplier);
         rewardVO.add((int) finalRep, 0, EnumRewardCategory.AMPLIFIER, EnumRewardType.REP_AMPLIFIER);
         rewardVO.add(0, (int) finalCash, EnumRewardCategory.AMPLIFIER, EnumRewardType.TOKEN_AMPLIFIER);
     }
