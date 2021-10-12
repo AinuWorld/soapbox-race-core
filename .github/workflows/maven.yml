@@ -35,10 +35,10 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
     - name: Build with Maven
-      run: git fetch --all --tags && mvn clean package
+      run: git fetch --all --tags --always && mvn clean package
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: Core-thorntail-reloaded
+        name: Core
         path: |
-              ${{ github.workspace }}/target/core-thorntail.jar
+              ${{ github.workspace }}/target/core-hollow-thorntail.jar
