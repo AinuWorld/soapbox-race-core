@@ -36,6 +36,20 @@ public class User {
     @Context
     private HttpServletRequest sr;
 
+    private String getClientIp() {
+
+        String remoteAddr = "";
+
+        if (sr != null) {
+            remoteAddr = sr.getHeader("X-Forwarded-For");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = sr.getRemoteAddr();
+            }
+        }
+
+        return remoteAddr;
+    }
+
     @EJB
     private AuthenticationBO authenticationBO;
 
@@ -171,7 +185,7 @@ public class User {
                 throw new AuthException("Bad Request: no email or password supplied");
             }
             PasswordVerifier verifier = new LegacyPasswordVerifier(password);
-            userBO.createUserWithTicket(email, verifier, sr.getRemoteAddr(), inviteTicket);
+            userBO.createUserWithTicket(email, verifier, getClientIp(), inviteTicket);
             AuthResultVO result = tokenBO.login(email, verifier, sr);
 
             LoginStatusVO loginStatusVO = new LoginStatusVO(result.getUserId(), result.getToken(), true);
@@ -200,7 +214,7 @@ public class User {
                 throw new AuthException("Bad Request: no email or password supplied");
             }
             PasswordVerifier verifier = new ModernPasswordVerifier(argon2BO, req.getPassword());
-            userBO.createUserWithTicket(req.getEmail(), verifier, sr.getRemoteAddr(), req.getTicket());
+            userBO.createUserWithTicket(req.getEmail(), verifier, getClientIp(), req.getTicket());
         } catch (AuthException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new JSONError(e.getMessage())).build();
         }
